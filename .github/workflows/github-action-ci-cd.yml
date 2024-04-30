@@ -79,7 +79,7 @@ jobs:
             sudo docker stop alarm-api
             sudo docker rm alarm-api
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/alarm-repo
-            sudo docker run -d -p 8000:8000 --name capstone-api ${{ secrets.DOCKERHUB_USERNAME }}/alarm-repo
+            sudo docker run -d -p 8000:8000 --name alarm-api ${{ secrets.DOCKERHUB_USERNAME }}/alarm-repo
 
       - name: Remove Github Actions IP from security group
         if: always()

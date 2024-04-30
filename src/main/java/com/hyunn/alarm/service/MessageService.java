@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -178,6 +179,17 @@ public class MessageService {
    * 각종 메세지 발송에 대한 응답 취합
    */
   public void sendMessage(User user) throws IOException {
+    // 전부 null이면 출력하지 않는다.
+    List<Department> departments = departmentJpaRepository.findAll();
+    int count = 0;
+    for (Department department : departments) {
+      if (department.getNotification().equals("") || department.getNotification().equals(null)) {
+        count++;
+      }
+    }
+    if (count == departments.size()) {
+      return;
+    }
 
     String phone = user.getPhone();
     String email = user.getEmail();

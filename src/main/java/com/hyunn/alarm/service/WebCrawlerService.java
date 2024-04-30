@@ -32,13 +32,14 @@ public class WebCrawlerService {
   public void crawler() {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
-    String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
-    System.out.println(currentDateTime);
+    ZonedDateTime yesterdayDateTime = ZonedDateTime.now(koreaZoneId).minusDays(1);
+    String yesterdayDateString = yesterdayDateTime.format(formatter);
+    System.out.println(yesterdayDateString);
 
     List<Department> departments = departmentJpaRepository.findAll();
     for (Department department : departments) {
       try {
-        crawlWebsite(department, currentDateTime);
+        crawlWebsite(department, yesterdayDateString);
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -76,10 +77,10 @@ public class WebCrawlerService {
       String currentTitle = titles.get(i).textNodes().get(0).text().trim();
       int date = parseElementDate(times.get(i));
 
-      if (date <= currentDate) {
-        if (date == currentDate) {
+      if (date <= currentDate + 1) {
+        if (date == currentDate + 1) {
           continue;
-        } else if (date == currentDate - 1) {
+        } else if (date == currentDate) {
           department.addNotification(currentTitle + "\n");
           departmentJpaRepository.save(department);
         } else {
