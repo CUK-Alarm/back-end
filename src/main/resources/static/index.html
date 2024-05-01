@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CUK 알리미</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('/templates/background.jpg'); /* 배경 이미지 경로 */
+      background-size: contain; /* 이미지 크기 조절 */
+      background-position: 300px;
+      background-repeat: no-repeat; /* 이미지 반복 방지 */
+    }
+
+    h1 {
+      font-size: 4rem;
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo {
+      width: 170px; /* 이미지 가로 크기 */
+      height: 170px; /* 이미지 세로 크기 */
+    }
+
+    .logo:hover {
+      transform: scale(1.1); /* 호버 시 버튼 크기 조금 커짐 */
+      background-color: rgba(0, 0, 0, 0);
+    }
+  </style>
+</head>
+<body>
+<h1>CUK 알리미</h1>
+<p>매일 아침 학교의 모든 공지사항을 알려드립니다! <br>
+간단하게 카카오 로그인으로 시작하세요!</p>
+<a href="https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=d04fe18c2585210a50801166087c8bbc&redirect_uri=http://localhost:8000/api/login/oauth2/code/kakao">
+  <img src="cuk_logo.png" alt="Logo" class="logo">
+</a>
+</body>
+</html>

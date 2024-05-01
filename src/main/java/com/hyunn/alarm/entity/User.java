@@ -34,11 +34,11 @@ public class User extends BaseEntity {
   @Column(name = "phone")
   private String phone;
 
-  // 전공
+  // 제 1전공
   @Column(name = "major")
   private String major;
 
-  // 부전공
+  // 제 2전공
   @Column(name = "minor")
   private String minor;
 
@@ -46,17 +46,24 @@ public class User extends BaseEntity {
   @Column(name = "access_token")
   private String accessToken;
 
+  // 인증 코드
+  @Column(name = "code")
+  private String code;
 
-  private User(String nickName, String email, String phone, String major, String minor, String accessToken) {
+
+  private User(String nickName, String email, String phone, String major, String minor,
+      String accessToken) {
     this.nickName = nickName;
     this.email = email;
     this.phone = phone;
     this.major = major;
     this.minor = minor;
     this.accessToken = accessToken;
+    this.code = null;
   }
 
-  public static User createUser(String nickName, String email, String phone, String major, String minor, String accessToken) {
+  public static User createUser(String nickName, String email, String phone, String major,
+      String minor, String accessToken) {
     return new User(nickName, email, phone, major, minor, accessToken);
   }
 
@@ -73,4 +80,7 @@ public class User extends BaseEntity {
     this.email = email;
   }
 
+  public void updateCode(String code) {
+    this.code = code;
+  }
 }

@@ -17,7 +17,8 @@ public class UserResponse {
 
   private final String accessToken;
 
-  public UserResponse(String nickName, String email, String phoneNum, String major, String minor, String accessToken) {
+  public UserResponse(String nickName, String email, String phoneNum, String major, String minor,
+      String accessToken) {
     this.nickName = nickName;
     this.email = email;
     this.phoneNum = phoneNum;

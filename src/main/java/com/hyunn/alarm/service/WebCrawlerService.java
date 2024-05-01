@@ -5,6 +5,7 @@ import com.hyunn.alarm.entity.User;
 import com.hyunn.alarm.exception.ApiNotFoundException;
 import com.hyunn.alarm.repository.DepartmentJpaRepository;
 import com.hyunn.alarm.repository.UserJpaRepository;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,12 +13,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-
-import java.io.IOException;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,18 +27,18 @@ public class WebCrawlerService {
   private final DepartmentJpaRepository departmentJpaRepository;
   private final MessageService messageService;
 
-  // @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul") // 오전 9시에 실행
-  @Scheduled(fixedRate = 60 * 1000)
+  @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul") // 오전 9시에 실행
   public void crawler() {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
-    String currentDateTime = ZonedDateTime.now(koreaZoneId).format(formatter);
-    System.out.println(currentDateTime);
+    ZonedDateTime yesterdayDateTime = ZonedDateTime.now(koreaZoneId).minusDays(1);
+    String yesterdayDateString = yesterdayDateTime.format(formatter);
+    System.out.println(yesterdayDateString);
 
     List<Department> departments = departmentJpaRepository.findAll();
     for (Department department : departments) {
       try {
-        crawlWebsite(department, currentDateTime);
+        crawlWebsite(department, yesterdayDateString);
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -47,7 +47,9 @@ public class WebCrawlerService {
     List<User> users = userJpaRepository.findAll();
     for (User user : users) {
       try {
-        messageService.sendMessage(user);
+        if (!user.getMajor().equals("null")) {
+          messageService.sendMessage(user);
+        }
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -57,7 +59,8 @@ public class WebCrawlerService {
   /**
    * 학교 내 모든 공지사항 정보 크롤링
    */
-  private void crawlWebsite(Department department, String currentDateTime) throws IOException {
+  @Transactional
+  public void crawlWebsite(Department department, String currentDateTime) throws IOException {
     String uri = department.getUri();
     department.resetNotification(); // 공지사항 초기화
     departmentJpaRepository.save(department);
@@ -76,10 +79,10 @@ public class WebCrawlerService {
       String currentTitle = titles.get(i).textNodes().get(0).text().trim();
       int date = parseElementDate(times.get(i));
 
-      if (date <= currentDate) {
-        if (date == currentDate) {
+      if (date <= currentDate + 1) {
+        if (date == currentDate + 1) {
           continue;
-        } else if (date == currentDate - 1) {
+        } else if (date == currentDate) {
           department.addNotification(currentTitle + "\n");
           departmentJpaRepository.save(department);
         } else {
@@ -90,7 +93,7 @@ public class WebCrawlerService {
   }
 
   /**
-   * 날짜를 int로 변환한다. (비교를 위해)
+   * String 날짜를 Int로
    */
   public int parseStringDate(String date) {
     if (date == null) {
@@ -105,6 +108,9 @@ public class WebCrawlerService {
     return Integer.parseInt(currentTime.substring(0, 8));
   }
 
+  /**
+   * Element 날짜를 Int로
+   */
   public int parseElementDate(Element infoLineElement) {
     if (infoLineElement == null) {
       throw new ApiNotFoundException("날짜를 알 수 없는 게시글입니다.");

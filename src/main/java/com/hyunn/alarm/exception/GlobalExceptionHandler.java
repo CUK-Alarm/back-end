@@ -13,6 +13,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
@@ -34,6 +36,26 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(UserNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ApiStandardResponse<ErrorResponse> handleUserNotFoundException(UserNotFoundException e) {
+    log.error("", e);
+
+    final ErrorResponse errorResponse = ErrorResponse.create(e.toErrorCode(), e.getMessage());
+    return ApiStandardResponse.fail(errorResponse);
+  }
+
+  // 인증 오류
+  @ExceptionHandler(UnauthorizedException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public ApiStandardResponse<ErrorResponse> handleUnauthorizedException(UnauthorizedException e) {
+    log.error("", e);
+
+    final ErrorResponse errorResponse = ErrorResponse.create(e.toErrorCode(), e.getMessage());
+    return ApiStandardResponse.fail(errorResponse);
+  }
+
+  // API 응답이 올바르지 않은 경우
+  @ExceptionHandler(ApiNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ApiStandardResponse<ErrorResponse> handleApiNotFoundException(ApiNotFoundException e) {
     log.error("", e);
 
     final ErrorResponse errorResponse = ErrorResponse.create(e.toErrorCode(), e.getMessage());
@@ -133,27 +155,26 @@ public class GlobalExceptionHandler {
     return ApiStandardResponse.fail(errorResponse);
   }
 
-  // 오류 처리를 위해서 잠시 주석 처리했음
-//  // 데이터 베이스 오류
-//  @ExceptionHandler(DataAccessException.class)
-//  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//  public ApiStandardResponse<ErrorResponse> handleDataAccessException(DataAccessException e) {
-//    log.error("", e);
-//
-//    final ErrorResponse errorResponse = ErrorResponse.create(ErrorStatus.DATABASE_ERROR,
-//        "데이터베이스에 오류가 발생했습니다.");
-//    return ApiStandardResponse.fail(errorResponse);
-//  }
-//
-//  // 내부 서버 오류
-//  @ExceptionHandler(InternalServerError.class)
-//  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//  public ApiStandardResponse<ErrorResponse> handleInternalServerError(InternalServerError e) {
-//    log.error("", e);
-//
-//    final ErrorResponse errorResponse = ErrorResponse.create(ErrorStatus.INTERNAL_SERVER_ERROR,
-//        "예상치 못한 오류가 발생했습니다. 관리자에게 문의해주세요.");
-//    return ApiStandardResponse.fail(errorResponse);
-//  }
+  // 데이터 베이스 오류
+  @ExceptionHandler(DataAccessException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ApiStandardResponse<ErrorResponse> handleDataAccessException(DataAccessException e) {
+    log.error("", e);
+
+    final ErrorResponse errorResponse = ErrorResponse.create(ErrorStatus.DATABASE_ERROR,
+        "데이터베이스에 오류가 발생했습니다.");
+    return ApiStandardResponse.fail(errorResponse);
+  }
+
+  // 내부 서버 오류
+  @ExceptionHandler(InternalServerError.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ApiStandardResponse<ErrorResponse> handleInternalServerError(InternalServerError e) {
+    log.error("", e);
+
+    final ErrorResponse errorResponse = ErrorResponse.create(ErrorStatus.INTERNAL_SERVER_ERROR,
+        "예상치 못한 오류가 발생했습니다. 관리자에게 문의해주세요.");
+    return ApiStandardResponse.fail(errorResponse);
+  }
 }
 
