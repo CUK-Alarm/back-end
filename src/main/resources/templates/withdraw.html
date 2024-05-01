@@ -148,7 +148,7 @@
       const phone = phoneInput.value.trim();
       const code = codeInput.value.trim();
 
-      fetch(`https://dev.hyunn.site/authentication?phone=${phone}&code=${code}`, {
+      fetch(`https://dev.hyunn.site/api/user/authentication?phone=${phone}&code=${code}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'
