@@ -1,5 +1,6 @@
 package com.hyunn.alarm.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.hyunn.alarm.dto.response.UserResponse;
@@ -7,6 +8,8 @@ import com.hyunn.alarm.entity.User;
 import com.hyunn.alarm.exception.ApiNotFoundException;
 import com.hyunn.alarm.exception.UserNotFoundException;
 import com.hyunn.alarm.repository.UserJpaRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +18,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -95,7 +102,8 @@ public class KakaoLoginService {
   /**
    * 로그인한 유저 정보 받아오기 -> 저장하기
    */
-  public UserResponse getUserInfo(String accessToken) {
+  @Transactional
+  public UserResponse getUserInfo(String accessToken, RedirectAttributes redirectAttributes) {
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.set("Authorization", "Bearer " + accessToken);
@@ -145,15 +153,36 @@ public class KakaoLoginService {
       User existUser = user.get();
       existUser.updateAccessToken(accessToken);
       userJpaRepository.save(existUser);
-      return UserResponse.create(existUser.getNickName(), existUser.getEmail(),
-          existUser.getPhone(), null, null, existUser.getAccessToken());
+
+      // th문을 위한 변환
+      String major = null;
+      String minor = null;
+      if (!existUser.getMajor().equals("null")) {
+        major = existUser.getMajor();
+      }
+
+      if (!existUser.getMinor().equals("null")) {
+        minor = existUser.getMinor();
+      }
+
+      UserResponse userResponse = UserResponse.create(existUser.getNickName(), existUser.getEmail(),
+          formatPhoneNumber(existUser.getPhone()), major, minor, existUser.getAccessToken());
+
+      redirectAttributes.addFlashAttribute("user", userResponse);
+
+      return userResponse;
     }
 
     // 새로운 유저 저장
-    User newUser = User.createUser(nickname, email, phone, null, null, accessToken);
+    User newUser = User.createUser(nickname, email, phone, "null", "null", accessToken);
     userJpaRepository.save(newUser);
 
-    return UserResponse.create(nickname, email, phone, null, null, accessToken);
+    UserResponse userResponse = UserResponse.create(nickname, email, formatPhoneNumber(phone), null,
+        null, accessToken);
+
+    redirectAttributes.addFlashAttribute("user", userResponse);
+
+    return userResponse;
   }
 
   /**
@@ -169,5 +198,24 @@ public class KakaoLoginService {
     return sb.toString();
   }
 
+  /**
+   * 핸드폰 형식 변환
+   */
+  public static String formatPhoneNumber(String phoneNumber) {
+    phoneNumber = phoneNumber.replaceAll("\\D", "");
+    return phoneNumber.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+  }
+
+  /**
+   * 모델 상속
+   */
+  public void mainPage(HttpServletRequest request, Model model) throws JsonProcessingException {
+    Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
+    UserResponse response = null;
+    if (inputFlashMap != null) {
+      response = (UserResponse) inputFlashMap.get("user");
+    }
+    model.addAttribute("user", response);
+  }
 }
 
