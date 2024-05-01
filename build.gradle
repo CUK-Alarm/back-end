@@ -36,6 +36,9 @@ dependencies {
 
 	// mail 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// timeLeaf 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
 tasks.named('bootBuildImage') {

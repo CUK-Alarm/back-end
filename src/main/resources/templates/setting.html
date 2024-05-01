@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>알림 설정</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 75vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-size: contain; /* 이미지 크기 조절 */
+      background-position: 300px;
+      background-repeat: no-repeat; /* 이미지 반복 방지 */
+    }
+
+    h1 {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-control {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .input {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .btn {
+      margin-top: 1rem;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #3e8e41;
+    }
+  </style>
+</head>
+<body>
+<h1>알림 설정</h1>
+<form id="settingForm">
+  <div class="button-container">
+    <input type="text" class="input" id="phoneInput" placeholder="휴대폰 번호 입력" maxlength="11" pattern="\[0-9\]\*" required>
+    <button type="button" class="btn" id="authBtn">인증</button>
+    <div id="timerContainer" style="display: none;">
+      <span id="timer">3:00</span>
+    </div>
+  </div>
+  <div id="codeContainer" style="display: none;">
+    <input type="text" class="input" id="codeInput" placeholder="인증 번호 입력" maxlength="6" required>
+    <button type="button" class="btn" id="verifyBtn" style="margin-left: 5px;">확인</button>
+  </div>
+  <div id="formContainer" style="display: none;">
+    <div class="form-group">
+      <select class="form-control" id="major1">
+        <option value="">제 1전공 선택</option>
+        <option value="컴퓨터정보공학부">컴퓨터정보공학부</option>
+        <option value="미디어기술콘텐츠학과">미디어기술콘텐츠학과</option>
+        <option value="정보통신전자공학부">정보통신전자공학부</option>
+        <option value="인공지능학과">인공지능학과</option>
+        <option value="데이터사이언스학과">데이터사이언스학과</option>
+        <option value="바이오메디컬소프트웨어학과">바이오메디컬소프트웨어학과</option>
+        <option value="생명공학과">생명공학과</option>
+        <option value="에너지환경공학과">에너지환경공학과</option>
+        <option value="수학과">수학과</option>
+        <option value="화학과">화학과</option>
+        <option value="물리학과">물리학과</option>
+        <br>
+      </select>
+    </div>
+    <div class="form-group">
+      <select class="form-control" id="major2">
+        <option value="">제 2전공 선택</option>
+        <option value="컴퓨터정보공학부">컴퓨터정보공학부</option>
+        <option value="미디어기술콘텐츠학과">미디어기술콘텐츠학과</option>
+        <option value="정보통신전자공학부">정보통신전자공학부</option>
+        <option value="인공지능학과">인공지능학과</option>
+        <option value="데이터사이언스학과">데이터사이언스학과</option>
+        <option value="바이오메디컬소프트웨어학과">바이오메디컬소프트웨어학과</option>
+        <option value="생명공학과">생명공학과</option>
+        <option value="에너지환경공학과">에너지환경공학과</option>
+        <option value="수학과">수학과</option>
+        <option value="화학과">화학과</option>
+        <option value="물리학과">물리학과</option>
+        <br>
+      </select>
+    </div>
+    <button type="button" class="btn" id="submitBtn">제출</button>
+  </div>
+</form>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('phoneInput');
+    const major1 = document.getElementById('major1');
+    const major2 = document.getElementById('major2');
+    const authBtn = document.getElementById('authBtn');
+    const timerContainer = document.getElementById('timerContainer');
+    const timer = document.getElementById('timer');
+    const codeContainer = document.getElementById('codeContainer');
+    const codeInput = document.getElementById('codeInput');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const formContainer = document.getElementById('formContainer');
+
+    let timerInterval;
+    let isAuthenticated = false;
+
+    authBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      const phone = phoneInput.value.trim();
+      const phoneRegex = /^010\d{8}$/;
+
+      if (!phoneRegex.test(phone)) {
+        alert('유효한 휴대폰 번호를 입력해주세요. (예: 01012345678)');
+        return;
+      }
+
+      authBtn.disabled = true;
+      timerContainer.style.display = 'inline';
+      codeContainer.style.display = 'flex';
+
+      let timeLeft = 180;
+      const updateTimer = () => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        timeLeft--;
+
+        if (timeLeft < 0) {
+          clearInterval(timerInterval);
+          authBtn.disabled = false;
+          timerContainer.style.display = 'none';
+          codeContainer.style.display = 'none';
+        }
+      };
+
+      timerInterval = setInterval(updateTimer, 1000);
+      updateTimer();
+
+      fetch(`https://dev.hyunn.site/api/user/code?phone=${phone}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('인증번호가 발송되었습니다.');
+        } else {
+          throw new Error('인증 번호 발송에 실패했습니다.');
+        }
+      })
+      .catch(error => {
+        alert(error);
+        console.error('Error:', error);
+      });
+    });
+
+    verifyBtn.addEventListener('click', function(event) {
+      event.preventDefault();
+      const phone = phoneInput.value.trim();
+      const code = codeInput.value.trim();
+
+      fetch(`https://dev.hyunn.site/api/user/authentication?phone=${phone}&code=${code}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('인증에 실패했습니다. 다시 시도해주세요.');
+        }
+        return response.json();
+      }).then(data => {
+        console.log(data);
+        if (data.code == "00") {
+          alert('인증되었습니다.');
+          isAuthenticated = true;
+          clearInterval(timerInterval);
+          authBtn.disabled = true;
+          timerContainer.style.display = 'none';
+          codeContainer.style.display = 'none';
+          formContainer.style.display = 'block';
+          submitBtn.style.display = 'block';
+        } else {
+          alert('인증에 실패했습니다. 다시 시도해주세요.');
+        }
+      })
+      .catch(error => {
+        alert(error);
+        console.error(error);
+      });
+    });
+
+    submitBtn.addEventListener('click', function() {
+      const phone = phoneInput.value.trim();
+      const phoneRegex = /^010\d{8}$/;
+
+      if (!phoneRegex.test(phone)) {
+        alert('유효한 휴대폰 번호를 입력해주세요. (예: 01012345678)');
+        return;
+      }
+
+      if (!major1.value || !major2.value) {
+        alert('제 1전공과 제 2전공을 모두 선택해주세요. \n(전공 심화의 경우 같은 전공을 선택해주세요.)');
+        return;
+      }
+
+      const json = {
+        phone: phone,
+        major: major1.value,
+        minor: major2.value
+      };
+
+      fetch('https://dev.hyunn.site/api/user/department', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify(json)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("알람 설정이 완료되었습니다.")
+          window.location.href = 'https://dev.hyunn.site';
+        } else {
+          alert('알람 설정에 실패하였습니다.');
+        }
+      })
+      .catch(error => {
+        alert(error);
+        console.error('Error:', error);
+      });
+    });
+  });
+</script>
+</body>
+</html>

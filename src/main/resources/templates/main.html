@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>메인 페이지</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('background.jpg'); /* 배경 이미지 경로 */
+      background-size: contain; /* 이미지 크기 조절 */
+      background-position: 300px;
+      background-repeat: no-repeat; /* 이미지 반복 방지 */
+    }
+
+    h1 {
+      font-size: 3rem;
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .user-info {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .user-info h2 {
+      font-size: 1.5rem;
+    }
+
+    .user-info p {
+      font-size: 1.2rem;
+      color: green;
+      font-weight: bold;
+    }
+
+    .user-info .contact-info {
+      border: 2px solid green;
+      border-radius: 10px;
+      padding: 10px;
+      display: inline-block;
+    }
+
+    .contact-info {
+      margin-top: 7px;
+      margin-bottom: 7px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 80%;
+      max-width: 600px;
+      margin-top: 2rem;
+    }
+
+    a.button1, a.button2, a.button3 {
+      flex: 1;
+      margin: 0 0.5rem;
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.1rem; /* Increased font size */
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      text-align: center; /* Centered text */
+    }
+
+    a.button1 {
+      background-color: #388e3c;
+    }
+
+    a.button2 {
+      background-color: lightskyblue;
+    }
+
+    a.button3 {
+      background-color: palevioletred;
+    }
+
+    a.button1:hover, a.button2:hover, a.button3:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+<h1>CUK 알리미</h1>
+<div class="user-info">
+  <h2>
+    안녕하세요, <span th:text="${user.nickName}"></span>님! <br><br>
+    <div class="contact-info">
+      <span th:text="${user.email}"></span><br><br>
+      <span th:text="${user.phoneNum}"></span>
+    </div>
+  </h2>
+  <div th:if="${user.major != null}">
+    <p>
+      이용 중입니다. <br>
+      제 1전공: <span th:if="${user.major != null}" th:text="${user.major}"></span> <br>
+      제 2전공: <span th:if="${user.minor == null}" th:text="${user.major}"></span>
+      <span th:if="${user.minor != null}" th:text="${user.minor}"></span>
+    </p>
+  </div>
+</div>
+<div class="button-container">
+  <a href="/setting" class="button1">알림 설정</a>
+  <a href="/modify" class="button2">이메일 변경</a>
+  <a href="/withdraw" class="button3">탈퇴</a>
+</div>
+</body>
+</html>
+
