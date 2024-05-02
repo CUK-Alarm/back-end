@@ -50,6 +50,10 @@ public class User extends BaseEntity {
   @Column(name = "code")
   private String code;
 
+  // 역할
+  @Column(name = "role")
+  private String role;
+
 
   private User(String nickName, String email, String phone, String major, String minor,
       String accessToken) {
@@ -60,6 +64,7 @@ public class User extends BaseEntity {
     this.minor = minor;
     this.accessToken = accessToken;
     this.code = null;
+    this.role = "user";
   }
 
   public static User createUser(String nickName, String email, String phone, String major,

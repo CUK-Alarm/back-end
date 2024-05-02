@@ -236,7 +236,7 @@ public class MessageService {
     System.out.println(responseByEmail);
 
     // API 요금 문제로 개발자 계정만 문자로 보냄
-    if (phone.equals("01093119836")) {
+    if (user.getRole().equals("root")) {
       String responseBySMS = sendSMS(message, phone, major, minor);
       System.out.println(responseBySMS);
     }
