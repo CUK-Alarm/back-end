@@ -88,6 +88,7 @@
     const verifyBtn = document.getElementById('verifyBtn');
     const formContainer = document.getElementById('formContainer');
     const submitBtn = document.getElementById('submitBtn');
+    const apiKey = [[${apiKey}]];
 
     let timerInterval;
     let isAuthenticated = false;
@@ -123,7 +124,6 @@
 
       timerInterval = setInterval(updateTimer, 1000);
       updateTimer();
-      let apiKey = [[${apiKey}]];
 
       fetch(`https://dev.hyunn.site/api/user/code?phone=${phone}`, {
         method: 'POST',
@@ -148,7 +148,7 @@
       event.preventDefault();
       const phone = phoneInput.value.trim();
       const code = codeInput.value.trim();
-      let apiKey = [[${apiKey}]];
+
       fetch(`https://dev.hyunn.site/api/user/authentication?phone=${phone}&code=${code}`, {
         method: 'POST',
         headers: {
@@ -191,7 +191,6 @@
 
       const confirmation = confirm('정말 탈퇴하시겠습니까?');
       if (confirmation) {
-        let apiKey = [[${apiKey}]];
         fetch(`https://dev.hyunn.site/api/user?phone=${phone}`, {
           method: 'DELETE',
           headers: {
