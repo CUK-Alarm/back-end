@@ -77,6 +77,7 @@
       <button type="button" class="btn" id="submitBtn" style="display: none;">제출</button>
     </div>
   </div>
+  <input type="hidden" id="aaa" value="${model.apiKey}"/>
 </form>
 
 <script>
@@ -91,7 +92,7 @@
     const emailInputContainer = document.getElementById('emailInputContainer');
     const emailInput = document.getElementById('emailInput');
     const submitBtn = document.getElementById('submitBtn');
-    var apiKey = '${apiKey}';
+    const apiKey = document.getElementById('aaa');
 
     let timerInterval;
     let isAuthenticated = false;
@@ -131,7 +132,6 @@
       fetch(`https://dev.hyunn.site/api/user/code?phone=${phone}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
           'x-api-key' : apiKey
         }
       })

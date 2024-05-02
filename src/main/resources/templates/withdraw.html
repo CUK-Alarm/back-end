@@ -75,6 +75,7 @@
       <button type="button" class="btn" id="submitBtn">회원 탈퇴</button>
     </div>
   </div>
+  <input type="hidden" id="aaa" value="${model.apiKey}"/>
 </form>
 
 <script>
@@ -88,7 +89,7 @@
     const verifyBtn = document.getElementById('verifyBtn');
     const formContainer = document.getElementById('formContainer');
     const submitBtn = document.getElementById('submitBtn');
-    var apiKey = '${apiKey}';
+    const apiKey = document.getElementById('aaa');
 
     let timerInterval;
     let isAuthenticated = false;
@@ -128,7 +129,6 @@
       fetch(`https://dev.hyunn.site/api/user/code?phone=${phone}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
           'x-api-key' : apiKey
         }
       })
@@ -153,7 +153,6 @@
       fetch(`https://dev.hyunn.site/api/user/authentication?phone=${phone}&code=${code}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
           'x-api-key' : apiKey
         }
       })
