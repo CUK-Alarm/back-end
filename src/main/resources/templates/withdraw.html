@@ -58,6 +58,7 @@
 </head>
 <body>
 <h1>회원 탈퇴</h1>
+<input type="hidden" id="aaa" value="${apiKey}"/>
 <form id="emailForm">
   <div class="button-container">
     <input type="text" class="input" id="phoneInput" placeholder="휴대폰 번호 입력" maxlength="11" pattern="\[0-9\]\*" required>
@@ -75,7 +76,6 @@
       <button type="button" class="btn" id="submitBtn">회원 탈퇴</button>
     </div>
   </div>
-  <input type="hidden" id="aaa" value="${apiKey}"/>
 </form>
 
 <script>
