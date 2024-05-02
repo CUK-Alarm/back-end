@@ -92,7 +92,7 @@
     const emailInputContainer = document.getElementById('emailInputContainer');
     const emailInput = document.getElementById('emailInput');
     const submitBtn = document.getElementById('submitBtn');
-    const apiKey = "${apiKey}";
+    var apiKey = <c:out value='${apiKey}' />;
 
     let timerInterval;
     let isAuthenticated = false;
