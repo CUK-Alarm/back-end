@@ -4,6 +4,7 @@ import com.hyunn.alarm.dto.request.UserDepartmentRequest;
 import com.hyunn.alarm.dto.request.UserEmailRequest;
 import com.hyunn.alarm.entity.User;
 import com.hyunn.alarm.exception.ApiKeyNotValidException;
+import com.hyunn.alarm.exception.ApiNotFoundException;
 import com.hyunn.alarm.exception.UnauthorizedException;
 import com.hyunn.alarm.exception.UserNotFoundException;
 import com.hyunn.alarm.repository.UserJpaRepository;
@@ -78,14 +79,14 @@ public class UserService {
     User existUser = user.get();
     existUser.updateEmail(email);
     userJpaRepository.save(existUser);
-    return "이메일 변경 : " + email;
+    return "이메일이 변경되었습니다.\n " + email;
   }
 
   /**
    * 유저 삭제
    */
   @Transactional
-  public void deleteUser(String phone, String apiKey) {
+  public String deleteUser(String phone, String apiKey) {
 
     // API KEY 유효성 검사
     if (apiKey == null || !apiKey.equals(xApiKey)) {
@@ -98,6 +99,7 @@ public class UserService {
 
     User existUser = user.get();
     userJpaRepository.delete(existUser);
+    return existUser.getNickName() + "님의 탈퇴가 완료되었습니다.";
   }
 
   /**
@@ -111,6 +113,7 @@ public class UserService {
       throw new ApiKeyNotValidException("API KEY가 올바르지 않습니다.");
     }
 
+    // 서비스를 등록한 유저인지 확인한다 => 악용 대비
     Optional<User> user = Optional.ofNullable(
         userJpaRepository.findUserByPhone(phone)
             .orElseThrow(() -> new UserNotFoundException("유저 정보를 가져오지 못했습니다.")));
@@ -146,5 +149,41 @@ public class UserService {
       throw new UnauthorizedException("인증 코드가 올바르지 않습니다.");
     }
     return "인증 완료";
+  }
+
+  /**
+   * 유료 서비스 등록 및 해지
+   */
+  @Transactional
+  public String updateRole(String phone, String role, String apiKey) {
+
+    // API KEY 유효성 검사
+    if (apiKey == null || !apiKey.equals(xApiKey)) {
+      throw new ApiKeyNotValidException("API KEY가 올바르지 않습니다.");
+    }
+
+    if (!(role.equals("root") || role.equals("user"))) {
+      throw new ApiNotFoundException("유효하지 않은 명령어입니다.");
+    }
+
+    Optional<User> user = Optional.ofNullable(
+        userJpaRepository.findUserByPhone(phone)
+            .orElseThrow(() -> new UserNotFoundException("유저 정보를 가져오지 못했습니다.")));
+
+    User existUser = user.get();
+    existUser.updateRole(role);
+    userJpaRepository.save(existUser);
+
+    boolean upgrade = false;
+    if (role.equals("root")) {
+      upgrade = true;
+    }
+
+    String message = existUser.getNickName() + " 님께서 일반 유저로 변경되었습니다.";
+    if (upgrade) {
+      message = existUser.getNickName() + " 님께서 유료 서비스 대상자로 변경되었습니다.";
+    }
+
+    return message;
   }
 }

@@ -1,6 +1,5 @@
 package com.hyunn.alarm.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hyunn.alarm.service.KakaoLoginService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

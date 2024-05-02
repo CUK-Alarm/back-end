@@ -117,15 +117,54 @@
   <a href="/modify" class="button2">이메일 변경</a>
   <a href="/withdraw" class="button3">탈퇴</a>
 </div>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // 팝업 창으로 보여주기
-    function showPopup(message) {
-      alert(message);
-    }
 
-    showPopup('첫 이용이라면 꼭 알림 설정을 해주세요!');
+<!-- 개발자 모드 버튼 -->
+<div id="dev-mode-btn" style="position: fixed; bottom: 10px; right: 10px; background-color: #f0f0f0; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+  <p style="font-size: 12px; margin: 0;">개발자 모드</p>
+</div>
+
+<!-- 개발자 모드 팝업 -->
+<div id="dev-mode-popup" style="display: none; position: fixed; bottom: 60px; right: 10px; background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+  <input type="text" id="dev-input" placeholder="코드 입력"><br>
+  <input type="text" id="phone-input" placeholder="번호 입력">
+  <button onclick="sendCode()">전송</button>
+</div>
+
+<script>
+  // 개발자 모드 버튼 클릭 시 팝업 보이기
+  document.getElementById('dev-mode-btn').addEventListener('click', function() {
+    document.getElementById('dev-mode-popup').style.display = 'block';
   });
+
+  // 전송 버튼 클릭 시 코드 전송
+  function sendCode() {
+    const code = document.getElementById('dev-input').value;
+    const phone = document.getElementById('phone-input').value;
+    const role = code.slice(-4).toString();
+    const apiKey = code.slice(0, -4).toString();
+
+    fetch(`https://dev.hyunn.site/api/user/role?phone=${phone}&role=${role}`, {
+      method: 'POST',
+      headers: {
+        'x-api-key' : apiKey
+      }
+    })
+    .then(response => {
+      return response.json()
+    }).then(data => {
+      console.log(data);
+      if (data.code == "00") {
+        console.log(data.data);
+        alert(data.data);
+      } else {
+        console.log(data.data);
+        alert(data.data.msg);
+      }
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }
 </script>
 </body>
 </html>

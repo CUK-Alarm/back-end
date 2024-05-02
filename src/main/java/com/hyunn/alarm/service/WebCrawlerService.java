@@ -35,6 +35,7 @@ public class WebCrawlerService {
     String yesterdayDateString = yesterdayDateTime.format(formatter);
     System.out.println(yesterdayDateString);
 
+    // 각 학과에 대해서 웹크롤링 실시
     List<Department> departments = departmentJpaRepository.findAll();
     for (Department department : departments) {
       try {
@@ -44,6 +45,7 @@ public class WebCrawlerService {
       }
     }
 
+    // 서비스 설정을 완료한 유저들에게 메세지 전송
     List<User> users = userJpaRepository.findAll();
     for (User user : users) {
       try {

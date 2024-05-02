@@ -103,10 +103,6 @@
         return;
       }
 
-      authBtn.disabled = true;
-      timerContainer.style.display = 'inline';
-      codeContainer.style.display = 'flex';
-
       let timeLeft = 180;
       const updateTimer = () => {
         const minutes = Math.floor(timeLeft / 60);
@@ -132,15 +128,21 @@
         }
       })
       .then(response => {
-        if (response.ok) {
-          alert('인증번호가 발송되었습니다.');
+        return response.json();
+      }).then(data => {
+        console.log(data);
+        if (data.code == "00") {
+          alert('문자가 발송되었습니다.');
+          authBtn.disabled = true;
+          timerContainer.style.display = 'inline';
+          codeContainer.style.display = 'flex';
         } else {
-          throw new Error('인증 번호 발송에 실패했습니다.');
+          console.log(data.data);
+          alert(data.data.msg);
         }
       })
       .catch(error => {
-        alert(error);
-        console.error('Error:', error);
+        console.error(error);
       });
     });
 
@@ -156,9 +158,6 @@
         }
       })
       .then(response => {
-        if (!response.ok) {
-          throw new Error('인증에 실패했습니다. 다시 시도해주세요.');
-        }
         return response.json();
       }).then(data => {
         console.log(data);
@@ -172,11 +171,11 @@
           formContainer.style.display = 'block';
           submitBtn.style.display = 'block';
         } else {
-          alert('인증에 실패했습니다. 다시 시도해주세요.');
+          console.log(data.data)
+          alert(data.data.msg)
         }
       })
       .catch(error => {
-        alert(error);
         console.error(error);
       });
     });
@@ -198,16 +197,17 @@
           }
         })
         .then(response => {
-          if (response.ok) {
-            alert("탈퇴되었습니다.")
-            window.location.href = 'https://dev.hyunn.site';
-          } else {
-            alert('회원 탈퇴에 실패하였습니다.');
-          }
+          return response.json();
+        }).then(data => {
+            if (data.code == "00") {
+              alert(data.data);
+              window.location.href = 'https://dev.hyunn.site';
+            } else {
+              alert(data.data.msg);
+            }
         })
         .catch(error => {
-          alert(error);
-          console.error('Error:', error);
+          console.error(error);
         });
       }
     });
