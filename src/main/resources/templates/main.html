@@ -105,7 +105,7 @@
   </h2>
   <div th:if="${user.major != null}">
     <p>
-      이용 중입니다. <br>
+      <span th:if="${user.role != null}" th:text="|${'(플러스 요금제) '}|"> </span>사용중입니다. <br>
       제 1전공: <span th:if="${user.major != null}" th:text="${user.major}"></span> <br>
       제 2전공: <span th:if="${user.minor == null}" th:text="${user.major}"></span>
       <span th:if="${user.minor != null}" th:text="${user.minor}"></span>
