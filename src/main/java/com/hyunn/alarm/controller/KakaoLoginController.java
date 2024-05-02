@@ -31,7 +31,7 @@ public class KakaoLoginController {
    * 위 Controller의 JSON을 model로 입력받아서 웹에 표시
    */
   @GetMapping("/main")
-  public String mainPage(HttpServletRequest request, Model model) throws JsonProcessingException {
+  public String mainPage(HttpServletRequest request, Model model) {
     kakaoLoginService.mainPage(request, model);
     return "main";
   }

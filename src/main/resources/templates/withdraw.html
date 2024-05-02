@@ -88,6 +88,7 @@
     const verifyBtn = document.getElementById('verifyBtn');
     const formContainer = document.getElementById('formContainer');
     const submitBtn = document.getElementById('submitBtn');
+    const apiKey = "<%= request.getAttribute(\"apiKey\") %>";
 
     let timerInterval;
     let isAuthenticated = false;
@@ -127,7 +128,8 @@
       fetch(`https://dev.hyunn.site/api/user/code?phone=${phone}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
+          'Content-Type': 'application/json;charset=UTF-8',
+          'x-api-key' : apiKey
         }
       })
       .then(response => {
@@ -151,7 +153,8 @@
       fetch(`https://dev.hyunn.site/api/user/authentication?phone=${phone}&code=${code}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
+          'Content-Type': 'application/json;charset=UTF-8',
+          'x-api-key' : apiKey
         }
       })
       .then(response => {
@@ -191,7 +194,10 @@
       const confirmation = confirm('정말 탈퇴하시겠습니까?');
       if (confirmation) {
         fetch(`https://dev.hyunn.site/api/user?phone=${phone}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'x-api-key' : apiKey
+          }
         })
         .then(response => {
           if (response.ok) {

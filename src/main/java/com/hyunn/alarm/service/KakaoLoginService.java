@@ -215,7 +215,7 @@ public class KakaoLoginService {
   /**
    * 모델 상속
    */
-  public void mainPage(HttpServletRequest request, Model model) throws JsonProcessingException {
+  public void mainPage(HttpServletRequest request, Model model) {
     Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
     UserResponse response = null;
     if (inputFlashMap != null) {

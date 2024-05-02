@@ -48,6 +48,7 @@
 │               │   │── Department
 │               │   └── User
 │               ├── exception
+│               │   │── ApiKeyNotValidException
 │               │   │── ApiNotFoundException
 │               │   │── ErrorStatus
 │               │   │── GlobalExceptionHandler

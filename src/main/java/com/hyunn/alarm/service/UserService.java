@@ -3,6 +3,7 @@ package com.hyunn.alarm.service;
 import com.hyunn.alarm.dto.request.UserDepartmentRequest;
 import com.hyunn.alarm.dto.request.UserEmailRequest;
 import com.hyunn.alarm.entity.User;
+import com.hyunn.alarm.exception.ApiKeyNotValidException;
 import com.hyunn.alarm.exception.UnauthorizedException;
 import com.hyunn.alarm.exception.UserNotFoundException;
 import com.hyunn.alarm.repository.UserJpaRepository;
@@ -10,12 +11,16 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+  @Value("${spring.security.x-api-key}")
+  private String xApiKey;
 
   private final UserJpaRepository userJpaRepository;
   private final MessageService messageService;
@@ -24,7 +29,12 @@ public class UserService {
    * 학과 업데이트
    */
   @Transactional
-  public String updateDepartment(UserDepartmentRequest userDepartmentRequest) {
+  public String updateDepartment(UserDepartmentRequest userDepartmentRequest, String apiKey) {
+
+    // API KEY 유효성 검사
+    if (apiKey == null || !apiKey.equals(xApiKey)) {
+      throw new ApiKeyNotValidException("API KEY가 올바르지 않습니다.");
+    }
 
     String major = userDepartmentRequest.getMajor();
     String minor = userDepartmentRequest.getMinor();
@@ -51,7 +61,12 @@ public class UserService {
    * 이메일 업데이트
    */
   @Transactional
-  public String updateEmail(UserEmailRequest userEmailRequest) {
+  public String updateEmail(UserEmailRequest userEmailRequest, String apiKey) {
+
+    // API KEY 유효성 검사
+    if (apiKey == null || !apiKey.equals(xApiKey)) {
+      throw new ApiKeyNotValidException("API KEY가 올바르지 않습니다.");
+    }
 
     String email = userEmailRequest.getEmail();
     String phone = userEmailRequest.getPhone();
@@ -70,7 +85,12 @@ public class UserService {
    * 유저 삭제
    */
   @Transactional
-  public void deleteUser(String phone) {
+  public void deleteUser(String phone, String apiKey) {
+
+    // API KEY 유효성 검사
+    if (apiKey == null || !apiKey.equals(xApiKey)) {
+      throw new ApiKeyNotValidException("API KEY가 올바르지 않습니다.");
+    }
 
     Optional<User> user = Optional.ofNullable(
         userJpaRepository.findUserByPhone(phone)
@@ -84,7 +104,12 @@ public class UserService {
    * 유저 인증 메세지
    */
   @Transactional
-  public String sendAuthentication(String phone) throws IOException {
+  public String sendAuthentication(String phone, String apiKey) throws IOException {
+
+    // API KEY 유효성 검사
+    if (apiKey == null || !apiKey.equals(xApiKey)) {
+      throw new ApiKeyNotValidException("API KEY가 올바르지 않습니다.");
+    }
 
     Optional<User> user = Optional.ofNullable(
         userJpaRepository.findUserByPhone(phone)
@@ -106,7 +131,13 @@ public class UserService {
     return String.valueOf(randomNumber);
   }
 
-  public String authentication(String phone, String code) {
+  public String authentication(String phone, String code, String apiKey) {
+
+    // API KEY 유효성 검사
+    if (apiKey == null || !apiKey.equals(xApiKey)) {
+      throw new ApiKeyNotValidException("API KEY가 올바르지 않습니다.");
+    }
+
     Optional<User> user = Optional.ofNullable(
         userJpaRepository.findUserByPhone(phone)
             .orElseThrow(() -> new UserNotFoundException("유저 정보를 가져오지 못했습니다.")));

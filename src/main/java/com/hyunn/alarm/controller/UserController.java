@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +28,9 @@ public class UserController {
    */
   @PostMapping("/code")
   public ResponseEntity<ApiStandardResponse<String>> sendAuthentication(
+      @RequestHeader(value = "x-api-key", required = false) String apiKey,
       @RequestParam("phone") String phone) throws IOException {
-    String message = userService.sendAuthentication(phone);
+    String message = userService.sendAuthentication(phone, apiKey);
     return ResponseEntity.ok(ApiStandardResponse.success(message));
   }
 
@@ -37,8 +39,9 @@ public class UserController {
    */
   @PostMapping("/authentication")
   public ResponseEntity<ApiStandardResponse<String>> authentication(
+      @RequestHeader(value = "x-api-key", required = false) String apiKey,
       @RequestParam("phone") String phone, @RequestParam("code") String code) {
-    String message = userService.authentication(phone, code);
+    String message = userService.authentication(phone, code, apiKey);
     return ResponseEntity.ok(ApiStandardResponse.success(message));
   }
 
@@ -47,8 +50,9 @@ public class UserController {
    */
   @PostMapping("/department")
   public ResponseEntity<ApiStandardResponse<String>> updateDepartment(
+      @RequestHeader(value = "x-api-key", required = false) String apiKey,
       @Valid @RequestBody UserDepartmentRequest userDepartmentRequest) {
-    String message = userService.updateDepartment(userDepartmentRequest);
+    String message = userService.updateDepartment(userDepartmentRequest, apiKey);
     return ResponseEntity.ok(ApiStandardResponse.success(message));
   }
 
@@ -57,8 +61,9 @@ public class UserController {
    */
   @PostMapping("/email")
   public ResponseEntity<ApiStandardResponse<String>> updateEmail(
+      @RequestHeader(value = "x-api-key", required = false) String apiKey,
       @Valid @RequestBody UserEmailRequest userEmailRequest) {
-    String message = userService.updateEmail(userEmailRequest);
+    String message = userService.updateEmail(userEmailRequest, apiKey);
     return ResponseEntity.ok(ApiStandardResponse.success(message));
   }
 
@@ -67,8 +72,9 @@ public class UserController {
    */
   @DeleteMapping()
   public ResponseEntity<ApiStandardResponse<String>> deleteUser(
+      @RequestHeader(value = "x-api-key", required = false) String apiKey,
       @RequestParam("phone") String phone) {
-    userService.deleteUser(phone);
+    userService.deleteUser(phone, apiKey);
     return ResponseEntity.ok(ApiStandardResponse.success("탈퇴 성공"));
   }
 
