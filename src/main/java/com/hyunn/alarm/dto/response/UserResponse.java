@@ -15,20 +15,20 @@ public class UserResponse {
 
   private final String minor;
 
-  private final String accessToken;
+  private final String role;
 
   public UserResponse(String nickName, String email, String phoneNum, String major, String minor,
-      String accessToken) {
+      String role) {
     this.nickName = nickName;
     this.email = email;
     this.phoneNum = phoneNum;
     this.major = major;
     this.minor = minor;
-    this.accessToken = accessToken;
+    this.role = role;
   }
 
   public static UserResponse create(String nickName, String email, String phoneNum,
-      String major, String minor, String accessToken) {
-    return new UserResponse(nickName, email, phoneNum, major, minor, accessToken);
+      String major, String minor, String role) {
+    return new UserResponse(nickName, email, phoneNum, major, minor, role);
   }
 }

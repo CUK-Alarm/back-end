@@ -157,6 +157,8 @@ public class KakaoLoginService {
       // th문을 위한 변환
       String major = null;
       String minor = null;
+      String role = null;
+
       if (!existUser.getMajor().equals("null")) {
         major = existUser.getMajor();
       }
@@ -165,8 +167,12 @@ public class KakaoLoginService {
         minor = existUser.getMinor();
       }
 
+      if (existUser.getRole().equals("root")) {
+        role = existUser.getRole();
+      }
+
       UserResponse userResponse = UserResponse.create(existUser.getNickName(), existUser.getEmail(),
-          formatPhoneNumber(existUser.getPhone()), major, minor, existUser.getAccessToken());
+          formatPhoneNumber(existUser.getPhone()), major, minor, role);
 
       redirectAttributes.addFlashAttribute("user", userResponse);
 
@@ -178,7 +184,7 @@ public class KakaoLoginService {
     userJpaRepository.save(newUser);
 
     UserResponse userResponse = UserResponse.create(nickname, email, formatPhoneNumber(phone), null,
-        null, accessToken);
+        null, null);
 
     redirectAttributes.addFlashAttribute("user", userResponse);
 
