@@ -6,7 +6,6 @@ import com.hyunn.alarm.entity.Department;
 import com.hyunn.alarm.entity.User;
 import com.hyunn.alarm.exception.ApiNotFoundException;
 import com.hyunn.alarm.repository.DepartmentJpaRepository;
-import com.hyunn.alarm.repository.UserJpaRepository;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -86,7 +85,7 @@ public class MessageService {
   }
 
   /**
-   * 문자 메세지 발송 -> HttpURLConnection 사용 (LMS 가격으로 개발자 계정만 적용)
+   * 문자 메세지 발송 -> HttpURLConnection 사용 (LMS 가격으로 인해서 루트 계정만 적용)
    */
   public String sendSMS(String message, String phone, String major, String minor)
       throws IOException {
