@@ -86,7 +86,7 @@ public class MessageService {
   }
 
   /**
-   * 문자 메세지 발송 -> HttpURLConnection 사용 (LMS 가격으로 보류)
+   * 문자 메세지 발송 -> HttpURLConnection 사용 (LMS 가격으로 개발자 계정만 적용)
    */
   public String sendSMS(String message, String phone, String major, String minor)
       throws IOException {
@@ -231,12 +231,15 @@ public class MessageService {
       minor = "null";
     }
 
-    // 메세지 보내기
+    // 이메일 보내기
     String responseByEmail = sendSimpleMail(message, email, major, minor);
-    // String responseBySMS = sendSMS(message, phone, major, minor);
-
     System.out.println(responseByEmail);
-    // System.out.println(responseBySMS);
+
+    // API 요금 문제로 개발자 계정만 문자로 보냄
+    if (phone.equals("01093119836")) {
+      String responseBySMS = sendSMS(message, phone, major, minor);
+      System.out.println(responseBySMS);
+    }
   }
 
   /**
