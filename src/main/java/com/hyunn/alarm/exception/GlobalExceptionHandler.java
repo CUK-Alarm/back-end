@@ -32,6 +32,17 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  // x-api-key 헤더가 올바르지 않은 경우
+  @ExceptionHandler(ApiKeyNotValidException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public ApiStandardResponse<ErrorResponse> handleApiKeyNotValidException(
+      ApiKeyNotValidException e) {
+    log.error("", e);
+
+    final ErrorResponse errorResponse = ErrorResponse.create(e.toErrorCode(), e.getMessage());
+    return ApiStandardResponse.fail(errorResponse);
+  }
+
   // 유저를 찾을 수 없는 경우
   @ExceptionHandler(UserNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
