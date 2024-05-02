@@ -107,7 +107,7 @@
         return;
       }
 
-      let timeLeft = 180;
+      let timeLeft = 300; // 5분
       const updateTimer = () => {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
@@ -116,6 +116,7 @@
 
         if (timeLeft < 0) {
           clearInterval(timerInterval);
+          alert("시간이 초과되었습니다. 다시 인증번호를 받아주세요.")
           authBtn.disabled = false;
           timerContainer.style.display = 'none';
           codeContainer.style.display = 'none';
