@@ -107,7 +107,7 @@
 또한 제한된 시간이 지나면 인증번호는 폐기되며 새로 인증번호를 받아야합니다. <br>
 해당 로직은 아래 "알림 설정", "이메일 변경", "회원 탈퇴"에서 사용됩니다.
 
-<img src= "https://velog.velcdn.com/images/hyuntae99/post/c408e2a8-fb75-4eef-ad8f-e4bda782d79c/image.gif" width="800" height="400"> <img src = "https://github.com/CUK-Alarm/back-end/assets/101180610/174bd414-859e-4e6b-8fcf-e69404d7e718" width="200" height="400">
+<img src= "https://velog.velcdn.com/images/hyuntae99/post/c408e2a8-fb75-4eef-ad8f-e4bda782d79c/image.gif" width="600" height="300"> <img src = "https://github.com/CUK-Alarm/back-end/assets/101180610/174bd414-859e-4e6b-8fcf-e69404d7e718" width="150" height="200">
 <br><br>
 
 ## 4. 알림 설정
