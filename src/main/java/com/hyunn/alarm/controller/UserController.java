@@ -31,7 +31,8 @@ public class UserController {
       @RequestHeader(value = "x-api-key", required = false) String apiKey,
       @RequestParam("phone") String phone) throws IOException {
     String message = userService.sendAuthentication(phone, apiKey);
-    return ResponseEntity.ok(ApiStandardResponse.success(message));
+    System.out.println(message);
+    return ResponseEntity.ok(ApiStandardResponse.success("인증 코드가 전송되었습니다."));
   }
 
   /**
@@ -74,8 +75,19 @@ public class UserController {
   public ResponseEntity<ApiStandardResponse<String>> deleteUser(
       @RequestHeader(value = "x-api-key", required = false) String apiKey,
       @RequestParam("phone") String phone) {
-    userService.deleteUser(phone, apiKey);
-    return ResponseEntity.ok(ApiStandardResponse.success("탈퇴 성공"));
+    String message = userService.deleteUser(phone, apiKey);
+    return ResponseEntity.ok(ApiStandardResponse.success(message));
+  }
+
+  /**
+   * 유료 서비스 등록 및 해지
+   */
+  @PostMapping("/role")
+  public ResponseEntity<ApiStandardResponse<String>> updateRole(
+      @RequestHeader(value = "x-api-key", required = false) String apiKey,
+      @RequestParam("phone") String phone, @RequestParam("role") String role) {
+    String message = userService.updateRole(phone, role, apiKey);
+    return ResponseEntity.ok(ApiStandardResponse.success(message));
   }
 
 }

@@ -88,4 +88,8 @@ public class User extends BaseEntity {
   public void updateCode(String code) {
     this.code = code;
   }
+
+  public void updateRole(String role) {
+    this.role = role;
+  }
 }
