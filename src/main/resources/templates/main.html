@@ -131,6 +131,15 @@
 </div>
 
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 팝업 창으로 보여주기
+    function showPopup(message) {
+      alert(message);
+    }
+
+    showPopup('첫 이용이라면 꼭 알림 설정을 해주세요!');
+  });
+
   // 개발자 모드 버튼 클릭 시 팝업 보이기
   document.getElementById('dev-mode-btn').addEventListener('click', function() {
     document.getElementById('dev-mode-popup').style.display = 'block';
@@ -156,6 +165,7 @@
       if (data.code == "00") {
         console.log(data.data);
         alert(data.data);
+        window.location.href = 'https://dev.hyunn.site';
       } else {
         console.log(data.data);
         alert(data.data.msg);
