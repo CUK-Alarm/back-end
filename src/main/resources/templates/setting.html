@@ -143,7 +143,6 @@
     const verifyBtn = document.getElementById('verifyBtn');
     const submitBtn = document.getElementById('submitBtn');
     const formContainer = document.getElementById('formContainer');
-    let apiKey = [[${apiKey}]];
 
     let timerInterval;
     let isAuthenticated = false;
@@ -179,7 +178,7 @@
 
       timerInterval = setInterval(updateTimer, 1000);
       updateTimer();
-
+      let apiKey = [[${apiKey}]];
       fetch(`https://dev.hyunn.site/api/user/code?phone=${phone}`, {
         method: 'POST',
         headers: {
@@ -203,6 +202,7 @@
       event.preventDefault();
       const phone = phoneInput.value.trim();
       const code = codeInput.value.trim();
+      let apiKey = [[${apiKey}]];
 
       fetch(`https://dev.hyunn.site/api/user/authentication?phone=${phone}&code=${code}`, {
         method: 'POST',
@@ -256,6 +256,7 @@
         minor: major2.value
       };
 
+      let apiKey = [[${apiKey}]];
       fetch('https://dev.hyunn.site/api/user/department', {
         method: 'POST',
         headers: {

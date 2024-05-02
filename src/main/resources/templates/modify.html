@@ -92,7 +92,6 @@
     const emailInputContainer = document.getElementById('emailInputContainer');
     const emailInput = document.getElementById('emailInput');
     const submitBtn = document.getElementById('submitBtn');
-    let apiKey = [[${apiKey}]];
 
     let timerInterval;
     let isAuthenticated = false;
@@ -128,6 +127,7 @@
 
       timerInterval = setInterval(updateTimer, 1000);
       updateTimer();
+      let apiKey = [[${apiKey}]];
 
       fetch(`https://dev.hyunn.site/api/user/code?phone=${phone}`, {
         method: 'POST',
@@ -152,6 +152,7 @@
       event.preventDefault();
       const phone = phoneInput.value.trim();
       const code = codeInput.value.trim();
+      let apiKey = [[${apiKey}]];
 
       fetch(`https://dev.hyunn.site/api/user/authentication?phone=${phone}&code=${code}`, {
         method: 'POST',
@@ -203,7 +204,9 @@
 
       const confirmation = confirm('정말 이메일을 변경하시겠습니까?');
       if (confirmation) {
+        let apiKey = [[${apiKey}]];
         const json = { phone: phone, email: email };
+
         fetch('https://dev.hyunn.site/api/user/email', {
           method: 'POST',
           headers: {
