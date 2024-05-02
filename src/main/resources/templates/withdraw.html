@@ -88,7 +88,7 @@
     const verifyBtn = document.getElementById('verifyBtn');
     const formContainer = document.getElementById('formContainer');
     const submitBtn = document.getElementById('submitBtn');
-    const apiKey = "<%= request.getAttribute(\"apiKey\") %>";
+    var apiKey = '${apiKey}';
 
     let timerInterval;
     let isAuthenticated = false;
