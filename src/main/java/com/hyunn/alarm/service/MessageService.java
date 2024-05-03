@@ -103,7 +103,10 @@ public class MessageService {
     Map<String, Object> requestBody = new HashMap<>();
     requestBody.put("callerNo", senderNum);
 
-    // 메세지
+    // 장문 문자
+    requestBody.put("smsType", "LMS");
+
+    // 제목
     String title = "[CUK 알리미] ";
     requestBody.put("title", title);
 
