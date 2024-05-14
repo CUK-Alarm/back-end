@@ -64,7 +64,6 @@ public class KakaoLoginService {
     params.add("grant_type", authorizationGrantType);
     params.add("client_id", clientId);
     params.add("client_secret", clientSecret);
-    ;
     params.add("redirect_uri", kakaoRedirectUri);
     params.add("code", code);
 
@@ -126,12 +125,13 @@ public class KakaoLoginService {
       throw new ApiNotFoundException("API 호출에 문제가 생겼습니다.");
     }
 
-    // JSON 파싱
+    // JSON 파싱 후 오류 처리
     String responseBody = response.getBody();
     if (responseBody == null || responseBody.isEmpty()) {
       throw new ApiNotFoundException("API 응답이 비어 있습니다.");
     }
 
+    // JsonObject 정보 파싱
     JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
     String email = jsonObject.getAsJsonObject("kakao_account").get("email").getAsString();
     String nickname = jsonObject.getAsJsonObject("kakao_account").getAsJsonObject("profile")
@@ -139,7 +139,7 @@ public class KakaoLoginService {
     String phoneNum = jsonObject.getAsJsonObject("kakao_account").get("phone_number")
         .getAsString();
 
-    // +82 10-1234-5678 -> 01012345678
+    // +82 10-1234-5678 -> 01012345678 변환
     String phone = extractNumber(phoneNum);
     phone = phone.substring(2, 12);
     phone = "0" + phone;
@@ -158,27 +158,30 @@ public class KakaoLoginService {
       String minor = null;
       String role = null;
 
+      // Major가 null이 아니라면 major로 설정
       if (!existUser.getMajor().equals("null")) {
         major = existUser.getMajor();
       }
-
+      // Minor가 null이 아니라면 minor로 설정 -> null이면 전공심화로 판단함.
       if (!existUser.getMinor().equals("null")) {
         minor = existUser.getMinor();
       }
-
+      // root 계정이라면 root로 변경
       if (existUser.getRole().equals("root")) {
         role = existUser.getRole();
       }
 
+      // UserResponse 생성
       UserResponse userResponse = UserResponse.create(existUser.getNickName(), existUser.getEmail(),
           formatPhoneNumber(existUser.getPhone()), major, minor, role);
 
+      // 모델에 상속함
       redirectAttributes.addFlashAttribute("user", userResponse);
 
       return userResponse;
     }
 
-    // 새로운 유저 저장
+    // 새로운 유저라면 객체를 새로 만들고 저장
     User newUser = User.createUser(nickname, email, phone, "null", "null", accessToken);
     userJpaRepository.save(newUser);
 
