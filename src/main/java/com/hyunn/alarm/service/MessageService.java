@@ -50,16 +50,19 @@ public class MessageService {
    * 이메일 발송
    */
   public String sendSimpleMail(String message, String email, String major, String minor) {
+    // major가 null이 아니라면 공지사항 추가
     if (!major.equals("null")) {
       Department major_department = departmentJpaRepository.findByMajor(major);
       message += major + "\n" + major_department.getNotification() + "\n";
     }
 
+    // minor가 null이 아니라면 공지사항 추가
     if (!minor.equals("null")) {
       Department minor_depart = departmentJpaRepository.findByMajor(minor);
       message += minor + "\n" + minor_depart.getNotification() + "\n";
     }
 
+    // SMTP 설정
     SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
 
     // 발신자
@@ -89,11 +92,13 @@ public class MessageService {
    */
   public String sendSMS(String message, String phone, String major, String minor)
       throws IOException {
+    // major가 null이 아니라면 공지사항 추가
     if (!major.equals("null")) {
       Department major_department = departmentJpaRepository.findByMajor(major);
       message += major + "\n" + major_department.getNotification() + "\n";
     }
 
+    // minor가 null이 아니라면 공지사항 추가
     if (!minor.equals("null")) {
       Department minor_depart = departmentJpaRepository.findByMajor(minor);
       message += minor + "\n" + minor_depart.getNotification() + "\n";
@@ -114,6 +119,7 @@ public class MessageService {
     message += "자세한 내용은 학교 홈페이지에서 확인해주세요!\nhttps://www.catholic.ac.kr/index.do";
     requestBody.put("message", message);
 
+    // 받을 번호
     String receiveNum =
         phone.substring(0, 3) + "-" + phone.substring(3, 7) + "-" + phone.substring(7);
     requestBody.put("receiveNos", receiveNum);
@@ -153,11 +159,12 @@ public class MessageService {
         String responseBody = response.toString();
         System.out.println("API 호출 성공: " + responseBody);
 
-        // JSON 파싱
+        // JSON 파싱 및 오류 처리
         if (responseBody == null || responseBody.isEmpty()) {
           throw new ApiNotFoundException("문자 메세지 API 응답이 비어 있습니다.");
         }
 
+        // Json에서 code와 message 파싱
         ObjectMapper mapper = new ObjectMapper();
         JsonNode responseJson = mapper.readTree(responseBody);
         String code = responseJson.get("code").asText();
@@ -184,18 +191,19 @@ public class MessageService {
    */
   public void sendMessage(User user) throws IOException {
 
-    // 전부 null이면 출력하지 않는다. -> 오늘 크롤링에서는 공지사항이 없었음
+    // 전부 null이면 출력하지 않는다. -> 오늘 크롤링에서는 공지사항이 없었다고 판단함.
     List<Department> departments = departmentJpaRepository.findAll();
     int count = 0;
     List<String> validMajors = new ArrayList<>();
     for (Department department : departments) {
+      // 비어있을 때마다 카운트
       if (department.getNotification().equals("") || department.getNotification().equals(null)) {
         count++;
       } else {
         validMajors.add(department.getMajor()); // 오늘 업데이트된 전공들 저장
       }
     }
-    // 전부 비어있으면 종료
+    // 전부 비어있으면 즉시 종료
     if (count == departments.size()) {
       return;
     }
@@ -207,6 +215,7 @@ public class MessageService {
       message += department.getMajor() + "\n" + department.getNotification() + "\n";
     }
 
+    // 유저 정보
     String phone = user.getPhone();
     String email = user.getEmail();
     String major = user.getMajor();
@@ -225,10 +234,10 @@ public class MessageService {
       }
     }
 
+    // 유저의 전공이 오늘 공지사항에 해당되지 않는다면 null
     if (!isMajorValid) {
       major = "null";
     }
-
     if (!isMinorValid) {
       minor = "null";
     }
@@ -249,7 +258,7 @@ public class MessageService {
    */
   public String sendAuthenticationMessage(String phone, String code) throws IOException {
 
-    // 요청 바디를 구성합니다.
+    // 요청 바디 구성
     Map<String, Object> requestBody = new HashMap<>();
     requestBody.put("callerNo", senderNum);
 
@@ -257,6 +266,7 @@ public class MessageService {
     String text = "[CUK 알리미] 인증번호 : " + code;
     requestBody.put("message", text);
 
+    // 받을 번호
     String receiveNum =
         phone.substring(0, 3) + "-" + phone.substring(3, 7) + "-" + phone.substring(7);
     requestBody.put("receiveNos", receiveNum);
@@ -264,7 +274,7 @@ public class MessageService {
     // 요청을 보낼 URL 생성
     URL url = new URL(sendmMessageUri);
 
-    // Open a connection through the URL
+    // URL 연결
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
     // 요청 방법 설정
@@ -296,11 +306,12 @@ public class MessageService {
         String responseBody = response.toString();
         System.out.println("API 호출 성공: " + responseBody);
 
-        // JSON 파싱
+        // JSON 파싱 및 오류 처리
         if (responseBody == null || responseBody.isEmpty()) {
           throw new ApiNotFoundException("문자 메세지 API 응답이 비어 있습니다.");
         }
 
+        // Json에서 code 파싱
         ObjectMapper mapper = new ObjectMapper();
         JsonNode responseJson = mapper.readTree(responseBody);
         String messageResponseCode = responseJson.get("code").asText();

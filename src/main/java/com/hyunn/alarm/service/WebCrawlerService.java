@@ -29,10 +29,10 @@ public class WebCrawlerService {
 
   @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul") // 오전 9시에 실행
   public void crawler() {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 시간 형식
     ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
-    ZonedDateTime yesterdayDateTime = ZonedDateTime.now(koreaZoneId).minusDays(1);
-    String yesterdayDateString = yesterdayDateTime.format(formatter);
+    ZonedDateTime yesterdayDateTime = ZonedDateTime.now(koreaZoneId).minusDays(1); // 전날 날짜
+    String yesterdayDateString = yesterdayDateTime.format(formatter); // 시간 형식 적용
     System.out.println(yesterdayDateString);
 
     // 각 학과에 대해서 웹크롤링 실시
@@ -65,22 +65,26 @@ public class WebCrawlerService {
   public void crawlWebsite(Department department, String currentDateTime) throws IOException {
     String uri = department.getUri();
     department.resetNotification(); // 공지사항 초기화
-    departmentJpaRepository.save(department);
+    departmentJpaRepository.save(department); // 저장
     int currentDate = parseStringDate(currentDateTime); // 현재 시간 가져오기
 
+    // Jsoup을 활용한 크롤링 설정
     Document doc = Jsoup.connect(uri).get();
-    Elements elements = doc.select("li:not(:has(div.flag.top))");
-    Elements times = elements.select("div.info_line");
+    Elements elements = doc.select("li:not(:has(div.flag.top))"); // 관련 정보 크롤링
+    Elements times = elements.select("div.info_line"); // 업로드 시간 크롤링
 
+    // 크롤링에 실패할 경우
     if (elements.size() == 0) {
       throw new ApiNotFoundException("API 응답이 비어 있습니다.");
     }
 
+    // 크롤링한 모든 원소에 대해서 실행
     for (int i = 0; i < elements.size(); i++) {
-      Elements titles = elements.select("div.title_line > div.title > div.text");
-      String currentTitle = titles.get(i).textNodes().get(0).text().trim();
-      int date = parseElementDate(times.get(i));
+      Elements titles = elements.select("div.title_line > div.title > div.text"); // 제목들만 파싱
+      String currentTitle = titles.get(i).textNodes().get(0).text().trim(); // 그 중 의미있는 데이터만 파싱
+      int date = parseElementDate(times.get(i)); // 시간 데이터 파싱
 
+      // 전날에 대한 공지사항을 모두 취합하여 저장
       if (date <= currentDate + 1) {
         if (date == currentDate + 1) {
           continue;
@@ -95,7 +99,7 @@ public class WebCrawlerService {
   }
 
   /**
-   * String 날짜를 Int로
+   * String 날짜를 Int로 변환
    */
   public int parseStringDate(String date) {
     if (date == null) {
@@ -111,7 +115,7 @@ public class WebCrawlerService {
   }
 
   /**
-   * Element 날짜를 Int로
+   * Element 날짜를 Int로 변환
    */
   public int parseElementDate(Element infoLineElement) {
     if (infoLineElement == null) {
