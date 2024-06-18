@@ -150,7 +150,7 @@
 <img src="https://github.com/CUK-Alarm/back-end/assets/101180610/b6e3ad72-8d31-401a-a3b7-f1a751857c72" width="800" height="400">
 
 
-루트 계정으로 변환되면 플러스 요금제로 변경됩니다. (문자로 알림을 받을 수 있습니다.)
+루트 계정으로 변환되면 플러스 요금제로 변경됩니다. (문자로 알림을 받을 수 있습니다.)   
 
 <img src="https://github.com/CUK-Alarm/back-end/assets/101180610/467482b0-0fde-4a15-a0b6-f95a5a6e2bb9" width="800" height="400">
 <br><br>
