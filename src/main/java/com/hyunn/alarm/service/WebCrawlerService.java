@@ -29,7 +29,7 @@ public class WebCrawlerService {
   private final DepartmentJpaRepository departmentJpaRepository;
   private final MessageService messageService;
 
-  @Scheduled(cron = "0 0 8 30 * *", zone = "Asia/Seoul") // 오전 8시 30분에 실행
+  @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul") // 오전 8시 30분에 실행
   public void crawler() {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 시간 형식
     ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
