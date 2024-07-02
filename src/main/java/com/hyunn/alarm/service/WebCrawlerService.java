@@ -6,11 +6,13 @@ import com.hyunn.alarm.exception.ApiNotFoundException;
 import com.hyunn.alarm.repository.DepartmentJpaRepository;
 import com.hyunn.alarm.repository.UserJpaRepository;
 import java.io.IOException;
+import java.net.SocketException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,7 +29,7 @@ public class WebCrawlerService {
   private final DepartmentJpaRepository departmentJpaRepository;
   private final MessageService messageService;
 
-  @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul") // 오전 9시에 실행
+  @Scheduled(cron = "* * * * * *", zone = "Asia/Seoul") // 오전 9시에 실행
   public void crawler() {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 시간 형식
     ZoneId koreaZoneId = ZoneId.of("Asia/Seoul"); // 대한민국 시간대
@@ -39,6 +41,7 @@ public class WebCrawlerService {
     List<Department> departments = departmentJpaRepository.findAll();
     for (Department department : departments) {
       try {
+        System.out.println("---- " + department.getMajor() + " ----");
         crawlWebsite(department, yesterdayDateString);
       } catch (IOException e) {
         e.printStackTrace();
@@ -66,35 +69,61 @@ public class WebCrawlerService {
     String uri = department.getUri();
     department.resetNotification(); // 공지사항 초기화
     departmentJpaRepository.save(department); // 저장
-    int currentDate = parseStringDate(currentDateTime); // 현재 시간 가져오기
+    int currentDate = parseStringDate(currentDateTime); // 전날 시간 가져오기
 
     // Jsoup을 활용한 크롤링 설정
-    Document doc = Jsoup.connect(uri).get();
-    Elements elements = doc.select("li:not(:has(div.flag.top))"); // 관련 정보 크롤링
-    Elements times = elements.select("div.info_line"); // 업로드 시간 크롤링
+    try {
+      Document doc = Jsoup.connect(uri)
+          .userAgent(
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
+          .get();
+      Elements tbody = doc.select("tr");
 
-    // 크롤링에 실패할 경우
-    if (elements.size() == 0) {
-      throw new ApiNotFoundException("API 응답이 비어 있습니다.");
-    }
+      // <th> 태그가 있는 첫 번째 행을 제거
+      if (!tbody.isEmpty() && tbody.first().select("th").size() > 0) {
+        tbody.remove(0);
+      }
 
-    // 크롤링한 모든 원소에 대해서 실행
-    for (int i = 0; i < elements.size(); i++) {
-      Elements titles = elements.select("div.title_line > div.title > div.text"); // 제목들만 파싱
-      String currentTitle = titles.get(i).textNodes().get(0).text().trim(); // 그 중 의미있는 데이터만 파싱
-      int date = parseElementDate(times.get(i)); // 시간 데이터 파싱
+      // 크롤링 후 남은 데이터가 없는 경우는 제외
+      if (tbody != null) {
+        // 크롤링한 모든 원소에 대해서 실행
+        for (Element row : tbody) {
+          // 고정 공지사항은 제외
+          if (!row.hasClass("b-cate-notice")) {
+            String currentTitle = row.select("td.b-td-title a.b-title").text().trim(); // 제목 파싱
+            String dateText = "";
+            if (department.getMajor().equals("일반") || department.getMajor().equals("학사")
+                || department.getMajor().equals("장학") || department.getMajor().equals("취/창업")) {
+              dateText = row.select("td:nth-child(4)").text().trim(); // 날짜 파싱
+            } else {
+              dateText = row.select("td:nth-child(3)").text().trim();
+            }
+            System.out.println("제목 : " + currentTitle);
+            System.out.println("날짜 : " + dateText);
 
-      // 전날에 대한 공지사항을 모두 취합하여 저장
-      if (date <= currentDate + 1) {
-        if (date == currentDate + 1) {
-          continue;
-        } else if (date == currentDate) {
-          department.addNotification(currentTitle + "\n");
-          departmentJpaRepository.save(department);
-        } else {
-          break;
+            int date = parseStringDate(dateText); // 날짜 변환
+
+            // 전날에 대한 공지사항을 모두 취합하여 저장
+            if (date <= currentDate + 1) {
+              // 오늘 공지사항은 내일 아침에 공지
+              if (date == currentDate + 1) {
+                continue;
+              } else if (date == currentDate) { // 전날 공지사항은 추가
+                department.addNotification(currentTitle + "\n");
+                departmentJpaRepository.save(department);
+              } else {
+                break;
+              }
+            }
+          }
         }
       }
+    } catch (HttpStatusException e) {
+      System.err.println("HTTP 오류: " + e.getStatusCode() + " - " + e.getMessage());
+    } catch (SocketException e) {
+      System.err.println("소켓 오류: " + e.getMessage());
+    } catch (IOException e) {
+      System.err.println("IO 오류: " + e.getMessage());
     }
   }
 
@@ -113,24 +142,4 @@ public class WebCrawlerService {
     }
     return Integer.parseInt(currentTime.substring(0, 8));
   }
-
-  /**
-   * Element 날짜를 Int로 변환
-   */
-  public int parseElementDate(Element infoLineElement) {
-    if (infoLineElement == null) {
-      throw new ApiNotFoundException("날짜를 알 수 없는 게시글입니다.");
-    }
-
-    String dateText = infoLineElement.selectFirst("div:contains(작성일)").text();
-    int index = dateText.indexOf("작성일 : ");
-    String date = dateText.substring(index + "작성일 : ".length()).trim();
-    String[] parts = date.split("[^0-9]+");
-    StringBuilder currentTime = new StringBuilder();
-    for (String part : parts) {
-      currentTime.append(part);
-    }
-    return Integer.parseInt(currentTime.substring(0, 8));
-  }
-
 }
